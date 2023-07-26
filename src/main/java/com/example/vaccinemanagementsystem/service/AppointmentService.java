@@ -53,14 +53,14 @@ public class AppointmentService {
         //create appointment object
         Appointment appointment = new Appointment();
         appointment.setAppointmentNo(String.valueOf(UUID.randomUUID()));
-        //-----Whenever multiple entities are in your API check for any change required in any other entities or not-----//
+
         appointment.setPerson(person);
         appointment.setDoctor(doctor);
 
         //when multiple parents saving child entity you need to make sure child is saved only once
         //Save the child first using child repository
         Appointment savedAppointment = appointmentRepository.save(appointment);
-
+        //-----Whenever multiple entities are in your API check for any change required in any other entities or not-----//
         doctor.getAppointmentList().add(savedAppointment);
         person.getAppointments().add(savedAppointment);
 

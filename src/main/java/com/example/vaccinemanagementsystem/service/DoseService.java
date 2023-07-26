@@ -4,6 +4,7 @@ import com.example.vaccinemanagementsystem.Enum.DoseType;
 import com.example.vaccinemanagementsystem.dto.requestDto.BookDose1RequestDto;
 import com.example.vaccinemanagementsystem.dto.responseDto.BookDose1ResponseDto;
 import com.example.vaccinemanagementsystem.exception.DoseAlreadyTakenException;
+import com.example.vaccinemanagementsystem.exception.DoseNotTakenException;
 import com.example.vaccinemanagementsystem.exception.PersonNotFoundException;
 import com.example.vaccinemanagementsystem.model.Dose;
 import com.example.vaccinemanagementsystem.model.Person;
@@ -43,6 +44,38 @@ public class DoseService {
         dose.setPerson(person);
 
         person.setDose1taken(true);
+        person.getDosesTaken().add(dose);
+
+        Person savedPerson = personRepository.save(person);
+
+        BookDose1ResponseDto bookDose1ResponseDto = new BookDose1ResponseDto();
+        bookDose1ResponseDto.setName(person.getName());
+        bookDose1ResponseDto.setDoseType(dose.getDoseType());
+        return bookDose1ResponseDto;
+    }
+
+    public BookDose1ResponseDto getDose2(BookDose1RequestDto bookDose1RequestDto) throws PersonNotFoundException {
+
+        Optional<Person> optionalPerson = personRepository.findById(bookDose1RequestDto.getPersonId());
+        if(!optionalPerson.isPresent()) {
+            throw new PersonNotFoundException("Invalid Person");
+        }
+
+        Person person = optionalPerson.get();
+        if(!person.isDose1taken()) {
+            throw new DoseNotTakenException("Please take dose 1 first");
+        }
+
+        if(person.isDose2taken()) {
+            throw new DoseAlreadyTakenException("Dose 2 already taken");
+        }
+
+        Dose dose = new Dose();
+        dose.setDoseNo(String.valueOf(UUID.randomUUID()));
+        dose.setDoseType(bookDose1RequestDto.getDoseType());
+        dose.setPerson(person);
+
+        person.setDose2taken(true);
         person.getDosesTaken().add(dose);
 
         Person savedPerson = personRepository.save(person);
